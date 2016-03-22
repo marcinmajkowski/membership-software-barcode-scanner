@@ -1,5 +1,7 @@
 package com.marcinmajkowski.membershipsoftware.barcodescanner;
 
+import javax.json.Json;
+import javax.json.JsonObject;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -15,6 +17,8 @@ public class BarcodeScannerApplication {
 
     private static String apiEndpointUrl;
 
+    private final RestfulClient restfulClient;
+
     static {
         Properties prop = new Properties();
         try (InputStream inputStream = new FileInputStream("config.properties")) {
@@ -26,6 +30,10 @@ public class BarcodeScannerApplication {
         }
 
         apiEndpointUrl = prop.getProperty("api-endpoint-url", "http://localhost:8080");
+    }
+
+    public BarcodeScannerApplication(RestfulClient restfulClient) {
+        this.restfulClient = restfulClient;
     }
 
     public void run() {
@@ -44,6 +52,12 @@ public class BarcodeScannerApplication {
                         break;
                     case "url":
                         System.out.println("API url: " + apiEndpointUrl);
+                        break;
+                    default:
+                        JsonObject payload = Json.createObjectBuilder()
+                                .add("value", command)
+                                .build();
+                        restfulClient.post(payload);
                         break;
                 }
 
@@ -77,6 +91,8 @@ public class BarcodeScannerApplication {
             }
         });
 
-        new BarcodeScannerApplication().run();
+        RestfulClient restfulClient = new RestfulClient(apiEndpointUrl);
+
+        new BarcodeScannerApplication(restfulClient).run();
     }
 }
