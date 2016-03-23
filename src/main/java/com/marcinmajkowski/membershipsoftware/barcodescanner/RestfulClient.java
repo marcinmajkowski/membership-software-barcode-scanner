@@ -26,6 +26,8 @@ public class RestfulClient {
         HttpPost postRequest = new HttpPost(apiUrl + "/api/v1/codeInputs");
         postRequest.setEntity(entity);
 
+        System.out.println("Sending POST request with payload:");
+        System.out.println(payload.toString());
         HttpResponse response = httpClient.execute(postRequest);
 
         return response.getStatusLine().getStatusCode();
