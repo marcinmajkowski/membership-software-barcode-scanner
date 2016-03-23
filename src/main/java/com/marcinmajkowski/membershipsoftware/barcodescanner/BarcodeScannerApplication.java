@@ -57,15 +57,15 @@ public class BarcodeScannerApplication {
                         JsonObject payload = Json.createObjectBuilder()
                                 .add("value", command)
                                 .build();
-                        restfulClient.post(payload);
+                        try {
+                            int statusCode = restfulClient.post(payload);
+                            System.out.println("Server responded with " + statusCode);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                         break;
                 }
 
-                if ("exit".equalsIgnoreCase(command)) {
-                    keepRunning = false;
-                }
-
-                System.out.println("Input: " + command);
                 System.out.print("> ");
             }
             try {
