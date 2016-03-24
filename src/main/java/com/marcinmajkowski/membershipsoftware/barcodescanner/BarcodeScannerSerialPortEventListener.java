@@ -37,7 +37,9 @@ public class BarcodeScannerSerialPortEventListener implements SerialPortEventLis
                 while ((lineTerminatorIndex = receiverCharacters.indexOf(LINE_TERMINATOR)) != -1) {
                     String code = receiverCharacters.substring(0, lineTerminatorIndex);
                     System.out.println("Scanned: \"" + code + "\"");
-                    handler.handle(code);
+                    if (code.matches("^\\d{12}$")) {
+                        handler.handle(code);
+                    }
                     receiverCharacters.delete(0, lineTerminatorIndex + LINE_TERMINATOR.length());
                 }
             } catch (SerialPortException e) {
