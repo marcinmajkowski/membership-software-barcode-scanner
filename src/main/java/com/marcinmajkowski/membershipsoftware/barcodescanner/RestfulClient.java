@@ -27,7 +27,8 @@ public class RestfulClient {
         postRequest.setEntity(entity);
 
         System.out.print("Sending POST request with payload: ");
-        System.out.println(payload.toString());
+        System.out.print(payload.toString());
+        System.out.println(".");
         CloseableHttpResponse response = httpClient.execute(postRequest);
 
         int statusCode = response.getStatusLine().getStatusCode();

@@ -2,6 +2,7 @@ package com.marcinmajkowski.membershipsoftware.barcodescanner;
 
 import jssc.SerialPort;
 import jssc.SerialPortException;
+import jssc.SerialPortList;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 
@@ -33,6 +34,7 @@ public class BarcodeScannerApplication {
 
         CloseableHttpClient httpClient = null;
         SerialPort serialPort = null;
+        String scannerPortName = null;
         try {
             Properties config = readConfig();
 
@@ -44,9 +46,9 @@ public class BarcodeScannerApplication {
 
             CodeScannedEventHandler codeScannedEventHandler = new CodeScannedEventHandler(restfulClient);
 
-            String scannerPort = config.getProperty("scanner.port", "COM3");
+            scannerPortName = config.getProperty("scanner.port", "COM3");
 
-            serialPort = new SerialPort(scannerPort);
+            serialPort = new SerialPort(scannerPortName);
 
             BarcodeScannerSerialPortEventListener barcodeScannerSerialPortEventListener = new BarcodeScannerSerialPortEventListener(serialPort, codeScannedEventHandler);
 
@@ -64,7 +66,24 @@ public class BarcodeScannerApplication {
         } catch (SerialPortException e) {
             String exceptionType = e.getExceptionType();
             if (exceptionType.equals(SerialPortException.TYPE_PORT_NOT_FOUND)) {
-                System.out.println("Port not found");
+                System.out.println("Serial port " + scannerPortName + " not found.");
+                String[] portNames = SerialPortList.getPortNames();
+                if (portNames.length > 0) {
+                    System.out.print("Available serial ports:");
+                    boolean first = true;
+                    for (String portName : portNames) {
+                        if (!first) {
+                            System.out.print(", ");
+                        } else {
+                            System.out.print(" ");
+                        }
+                        System.out.print(portName);
+                        first = false;
+                    }
+                    System.out.println(".");
+                } else {
+                    System.out.println("There are no serial ports available in your system. Check if scanner device is connected and drivers are installed.");
+                }
             } else {
                 e.printStackTrace();
             }
@@ -73,9 +92,9 @@ public class BarcodeScannerApplication {
                 try {
                     System.out.print("Closing http client...");
                     httpClient.close();
-                    System.out.println(" closed");
+                    System.out.println(" closed.");
                 } catch (IOException e) {
-                    System.out.println(" an error occurred");
+                    System.out.println(" an error occurred.");
                     e.printStackTrace();
                 }
             }
@@ -88,7 +107,7 @@ public class BarcodeScannerApplication {
         try (InputStream inputStream = new FileInputStream("config.properties")) {
             config.load(inputStream);
         } catch (FileNotFoundException e) {
-            System.out.println("config.properties file not found");
+            System.out.println("config.properties file not found.");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -104,7 +123,7 @@ public class BarcodeScannerApplication {
             if (scanner.hasNextLine()) {
                 String command = scanner.nextLine();
 
-                if (command.toLowerCase().equals("exit")) {
+                if (command.toLowerCase().equals("exit") || command.toLowerCase().equals("q")) {
                     keepRunning = false;
                 }
             }
@@ -125,9 +144,9 @@ public class BarcodeScannerApplication {
                 serialPort.purgePort(SerialPort.PURGE_TXABORT);
                 serialPort.purgePort(SerialPort.PURGE_RXABORT);
                 serialPort.closePort();
-                System.out.println(" closed");
+                System.out.println(" closed.");
             } catch (SerialPortException e) {
-                System.out.println(" an error occurred");
+                System.out.println(" an error occurred.");
                 e.printStackTrace();
             }
         }

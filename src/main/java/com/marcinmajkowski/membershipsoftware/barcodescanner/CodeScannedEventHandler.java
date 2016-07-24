@@ -18,7 +18,7 @@ public class CodeScannedEventHandler {
                 .build();
         try {
             int statusCode = restfulClient.post(payload);
-            System.out.println("Server responded with " + statusCode);
+            System.out.println("Server responded with " + statusCode + ".");
         } catch (IOException e) {
             e.printStackTrace();
         }
